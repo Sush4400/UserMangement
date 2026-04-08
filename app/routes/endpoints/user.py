@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
-from app.schemas.user import UserResponse, UserCreate
+from app.schemas.user import UserResponse, UserCreate, UserUpdate, UserLogin, UserResetPassword
 from app.core.db import get_db
 from app.services.user import UserService
+from app.core.utils import get_current_user
 
 
 router = APIRouter(prefix="/users", tags=['users'])
@@ -21,3 +22,23 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 @router.post("", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return UserService.create_user(db, user)
+
+
+@router.patch("/{user_id}", response_model=UserResponse)
+def update_user(data: UserUpdate, user_id: int, db: Session = Depends(get_db)):
+    return UserService.update_user(db, user_id, data.model_dump(exclude_unset=True))
+
+
+@router.delete("/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    return UserService.delete_user(db, user_id)
+
+
+@router.post("/login")
+def login(data: UserLogin, db: Session = Depends(get_db)):
+    return UserService.login_user(db, data)
+
+
+@router.post("/change-password")
+def change_password(data: UserResetPassword, db: Session = Depends(get_db), user_id=Depends(get_current_user)):
+    return UserService.change_password(db, data, user_id)

@@ -14,12 +14,13 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    fullname: Optional[str] = None
+    full_name: Optional[str] = None
     is_active: Optional[bool] = None
 
 
 class UserResponse(UserBase):
     id: int
+    is_active: bool
     created_at: datetime
     updated_at: datetime
     model_config = ConfigDict(
@@ -28,7 +29,7 @@ class UserResponse(UserBase):
             datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S") if v else None
         }
     )
-    
+ 
 
 class UserLogin(BaseModel):
     username: str
